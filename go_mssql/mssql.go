@@ -34,9 +34,10 @@ func main() {
 		fmt.Printf(" port:%d\n", *port)
 		fmt.Printf(" server:%s\n", *server)
 		fmt.Printf(" user:%s\n", *user)
+		fmt.Printf(" database:%s\n", *database)
 	}
 	
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%d", *server, *user, *password, *port, *database)
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;port=%d", *server, *user, *password,*database, *port)
 	
 	if *debug {
 		fmt.Printf(" connString:%s\n", connString)
