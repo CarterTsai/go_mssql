@@ -23,6 +23,7 @@ func main() {
 		user = flag.String("user", "", "the database user")
 		password = flag.String("password", "", "the database password")
 		port *int = flag.Int("port", 1433, "the database port")
+		database = flag.String("database", "", "db_name")
 		filepath = flag.String("filepath", "", "sql filepath")
 	)
 
@@ -35,7 +36,7 @@ func main() {
 		fmt.Printf(" user:%s\n", *user)
 	}
 	
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d", *server, *user, *password, *port)
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%d", *server, *user, *password, *port, *database)
 	
 	if *debug {
 		fmt.Printf(" connString:%s\n", connString)
