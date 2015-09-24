@@ -16,8 +16,7 @@ func check(e error) {
     }
 }
 
-func main() {
-	var (
+var (
 		debug = flag.Bool("debug", false, "enable debugging")
 		server = flag.String("server", "", "the database server")
 		user = flag.String("user", "", "the database user")
@@ -25,8 +24,11 @@ func main() {
 		port *int = flag.Int("port", 1433, "the database port")
 		database = flag.String("database", "", "db_name")
 		filepath = flag.String("filepath", "", "sql filepath")
+		dialTimeout = flag.Int("dialTimeout", 5, "the dial timeout")
 	)
 
+func main() {
+	
 	flag.Parse() // parse the command line args
 	
 	if *debug {
@@ -37,7 +39,8 @@ func main() {
 		fmt.Printf(" database:%s\n", *database)
 	}
 	
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;port=%d", *server, *user, *password,*database, *port)
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;port=%d;dial timeout=%d", 
+							*server, *user, *password,*database, *port, *dialTimeout)
 	
 	if *debug {
 		fmt.Printf(" connString:%s\n", connString)
@@ -56,13 +59,13 @@ func main() {
 	}
 	defer db.Close()
 	
-	if *debug {
-		fmt.Printf(" Hello\n")
-	}
-	
 	fmt.Println(*filepath);
 	dat, err := ioutil.ReadFile(*filepath)
     check(err)
+	
+	if *debug {
+		log.Println(string(dat))
+	}
 	
 	err = exec(db, string(dat))
 	if err != nil {
@@ -73,11 +76,18 @@ func main() {
 func exec(db *sql.DB, cmd string) error {
 	rows, err := db.Query(cmd)
 	if err != nil {
+		if *debug {
+			log.Println("error from db.Query")
+			log.Println(err)
+		}
 		return err
 	}
 	defer rows.Close()
 	cols, err := rows.Columns()
 	if err != nil {
+		if *debug {
+			log.Println("error from rows.Columns")
+		}
 		return err
 	}
 	if cols == nil {
@@ -95,6 +105,9 @@ func exec(db *sql.DB, cmd string) error {
 	for rows.Next() {
 		err = rows.Scan(vals...)
 		if err != nil {
+			if *debug {
+				log.Println("error from rows.Scan")
+			}
 			fmt.Println(err)
 			continue
 		}
@@ -108,6 +121,9 @@ func exec(db *sql.DB, cmd string) error {
 
 	}
 	if rows.Err() != nil {
+		if *debug {
+			log.Println("error from rows.Err")
+		}
 		return rows.Err()
 	}
 	return nil
