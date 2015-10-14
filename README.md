@@ -8,7 +8,7 @@ golang mssql example
     go get github.com/CarterTsai/go_mssql
   
 ### Install 
-    go install github.com/CarterTsai/go_mssql/go_mssql
+    go install github.com/CarterTsai/go_mssql
   
 ### Add Binary Path
     $> export PATH=$PATH:$GOPATH/bin
