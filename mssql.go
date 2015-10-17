@@ -1,36 +1,36 @@
 package main
 
 import (
-    "io/ioutil"
 	"database/sql"
 	"flag"
 	"fmt"
-	"time"
-	"log"
 	_ "github.com/denisenkom/go-mssqldb"
+	"io/ioutil"
+	"log"
+	"time"
 )
 
 func check(e error) {
-    if e != nil {
-        panic(e)
-    }
+	if e != nil {
+		panic(e)
+	}
 }
 
 var (
-		debug = flag.Bool("debug", false, "enable debugging")
-		server = flag.String("server", "", "the database server")
-		user = flag.String("user", "", "the database user")
-		password = flag.String("password", "", "the database password")
-		port *int = flag.Int("port", 1433, "the database port")
-		database = flag.String("database", "", "db_name")
-		filepath = flag.String("filepath", "", "sql filepath")
-		dialTimeout = flag.Int("dialTimeout", 5, "the dial timeout")
-	)
+	debug            = flag.Bool("debug", false, "enable debugging")
+	server           = flag.String("server", "", "the database server")
+	user             = flag.String("user", "", "the database user")
+	password         = flag.String("password", "", "the database password")
+	port        *int = flag.Int("port", 1433, "the database port")
+	database         = flag.String("database", "", "db_name")
+	filepath         = flag.String("filepath", "", "sql filepath")
+	dialTimeout      = flag.Int("dialTimeout", 5, "the dial timeout")
+)
 
 func main() {
-	
+
 	flag.Parse() // parse the command line args
-	
+
 	if *debug {
 		fmt.Printf(" password:%s\n", *password)
 		fmt.Printf(" port:%d\n", *port)
@@ -38,35 +38,38 @@ func main() {
 		fmt.Printf(" user:%s\n", *user)
 		fmt.Printf(" database:%s\n", *database)
 	}
-	
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;port=%d;dial timeout=%d", 
-							*server, *user, *password,*database, *port, *dialTimeout)
-	
+
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;port=%d;dial timeout=%d",
+		*server, *user, *password, *database, *port, *dialTimeout)
+
 	if *debug {
 		fmt.Printf(" connString:%s\n", connString)
 	}
 	db, err := sql.Open("mssql", connString)
-	
+
 	if err != nil {
 		log.Fatal("Open connection failed:", err.Error())
 	}
 	defer db.Close()
-	
+
 	err = db.Ping()
 	if err != nil {
 		log.Fatal("Cannot connect: ", err.Error())
 		return
 	}
 	defer db.Close()
-	
-	fmt.Println(*filepath);
+
+	if *debug {
+		fmt.Println(*filepath)
+	}
+
 	dat, err := ioutil.ReadFile(*filepath)
-    check(err)
-	
+	check(err)
+
 	if *debug {
 		log.Println(string(dat))
 	}
-	
+
 	err = exec(db, string(dat))
 	if err != nil {
 		fmt.Println(err)
